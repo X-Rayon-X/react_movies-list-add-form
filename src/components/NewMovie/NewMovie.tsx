@@ -9,14 +9,19 @@ type Props = {
 export const NewMovie: React.FC<Props> = ({ onAdd }) => {
   // Increase the count after successful form submission
   // to reset touched status of all the `Field`s
-  const [count] = useState(0);
+  const [count, setCount] = useState(0);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [imgUrl, setImgUrl] = useState('');
   const [imdbUrl, setImdbUrl] = useState('');
   const [imdbId, setImdbId] = useState('');
 
-  const isTitleValid = title.trim() !== '';
+  const pattern =
+    // eslint-disable-next-line max-len
+    /^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w-_]*)?\??(?:[-+=&;%@,.\w_]*)#?(?:[,.!/\\\w]*))?)$/;
+
+  const isFormValid =
+    title.trim() && imgUrl.trim() && imdbUrl.trim() && imdbId.trim();
 
   const reset = () => {
     setTitle('');
@@ -24,12 +29,17 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
     setImgUrl('');
     setImdbUrl('');
     setImdbId('');
+    setCount(c => c + 1);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!title) {
+    if (!title || !imgUrl || !imdbUrl || !imdbId) {
+      return;
+    }
+
+    if (!pattern.test(imgUrl) || !pattern.test(imdbUrl)) {
       return;
     }
 
@@ -62,6 +72,8 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
         label="Image URL"
         value={imgUrl}
         onChange={value => setImgUrl(value)}
+        required
+        customValidate={value => !pattern.test(value)}
       />
 
       <TextField
@@ -69,6 +81,8 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
         label="Imdb URL"
         value={imdbUrl}
         onChange={value => setImdbUrl(value)}
+        required
+        customValidate={value => !pattern.test(value)}
       />
 
       <TextField
@@ -76,6 +90,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
         label="Imdb ID"
         value={imdbId}
         onChange={value => setImdbId(value)}
+        required
       />
 
       <div className="field is-grouped">
@@ -84,7 +99,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
             type="submit"
             data-cy="submit-button"
             className="button is-link"
-            disabled={!isTitleValid}
+            disabled={!isFormValid}
           >
             Add
           </button>

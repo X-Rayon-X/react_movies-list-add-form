@@ -3,21 +3,19 @@ import { MoviesList } from './components/MoviesList';
 import { NewMovie } from './components/NewMovie';
 import moviesFromServer from './api/movies.json';
 import { Movie } from './types/Movie';
+import { useState } from 'react';
 
 export const App = () => {
-  const addMovie = (movie: Movie) => {
-    const newMovie = {
-      ...movie,
-      imdbId: movie.imdbUrl.slice(-9),
-    };
+  const [movies, setMovies] = useState<Movie[]>(moviesFromServer);
 
-    moviesFromServer.push(newMovie);
+  const addMovie = (movie: Movie) => {
+    setMovies(currentMovies => [...currentMovies, movie]);
   };
 
   return (
     <div className="page">
       <div className="page-content">
-        <MoviesList movies={moviesFromServer} />
+        <MoviesList movies={movies} />
       </div>
       <div className="sidebar">
         <NewMovie onAdd={addMovie} />
